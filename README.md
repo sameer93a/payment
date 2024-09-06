@@ -1,8 +1,7 @@
-```
-npm install
-npm run dev
-```
+# BACKEND
 
-```
-npm run deploy
-```
+- bun
+- hono
+- cloudflare worker
+- zod
+- drizzle
