@@ -7,6 +7,8 @@ import {
   index,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export const onRampStatusEnum = pgEnum("onramp", [
   "success",
@@ -49,4 +51,10 @@ export const p2pTransfer = pgTable("p2pTransfer", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   fromUserId: integer("from_user_id").references(() => users.id),
   toUserId: integer("to_user_id").references(() => users.id),
+});
+
+// Schema for inserting a user - can be used to validate API requests
+export const insertUserSchema = createInsertSchema(users, {
+  name: z.string().min(3),
+  email: z.string().email(),
 });
