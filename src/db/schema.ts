@@ -4,7 +4,7 @@ import {
   pgTable,
   serial,
   timestamp,
-  uniqueIndex,
+  index,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -14,18 +14,24 @@ export const onRampStatusEnum = pgEnum("onramp", [
   "processing",
 ]);
 
-export const user = pgTable("user", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }),
-  email: varchar("email", { length: 256 }).unique(),
-  password: varchar("password", { length: 256 }),
-});
+export const users = pgTable(
+  "user",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 256 }).notNull(),
+    email: varchar("email", { length: 256 }).unique().notNull(),
+    password: varchar("password", { length: 256 }).notNull(),
+  },
+  (users) => ({
+    nameIdx: index("name_idx").on(users.email),
+  })
+);
 
 export const balance = pgTable("balance", {
   id: serial("id").primaryKey(),
   amount: integer("amount"),
   locked: integer("locked"),
-  userId: integer("user_id").references(() => user.id),
+  userId: integer("user_id").references(() => users.id),
 });
 
 export const onRampTransaction = pgTable("on_ramp_transaction", {
@@ -41,6 +47,6 @@ export const p2pTransfer = pgTable("p2pTransfer", {
   id: serial("id").primaryKey(),
   amount: integer("amount"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  fromUserId: integer("from_user_id").references(() => user.id),
-  toUserId: integer("to_user_id").references(() => user.id),
+  fromUserId: integer("from_user_id").references(() => users.id),
+  toUserId: integer("to_user_id").references(() => users.id),
 });
